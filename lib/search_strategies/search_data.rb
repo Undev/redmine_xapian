@@ -48,18 +48,7 @@ class SearchStrategies::SearchData
     def init_scope_and_projects_conditions(context, projects)
       scope = context
 
-      user = User.current
-
       project_conditions = []
-      if searchable_options.has_key?(:permission)
-        project_conditions << Project.allowed_to_condition(user, searchable_options[:permission] || :view_project)
-      elsif respond_to?(:visible)
-        scope = scope.visible(user)
-      else
-        ActiveSupport::Deprecation.warn "acts_as_searchable with implicit :permission option is deprecated. Add a visible scope to the #{context.name} model or use explicit :permission option."
-        project_conditions << Project.allowed_to_condition(user, "view_#{context.name.underscore.pluralize}".to_sym)
-      end
-
       # TODO: use visible scope options instead
       project_conditions << "#{searchable_options[:project_key]} IN (#{projects.collect(&:id).join(',')})" unless projects.nil?
       project_conditions = project_conditions.empty? ? nil : project_conditions.join(' AND ')

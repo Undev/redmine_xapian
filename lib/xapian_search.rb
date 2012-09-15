@@ -1,9 +1,6 @@
 require 'xapian'
 
-module XapianSearch
-  
-  @@numattach=0
-  
+module XapianSearch  
   def XapianSearch.search_attachments(tokens, limit_options, offset, projects_to_search, all_words, user_stem_lang, user_stem_strategy )
     xpattachments = Array.new
     return [xpattachments,0] unless Setting.plugin_redmine_xapian['enable'] == "true"
@@ -70,18 +67,17 @@ module XapianSearch
 
             user = User.current
             project = docattach.container.project
-
-            can_view_docs = user.allowed_to?("view_documents".to_sym, project)
+            container_permission = SearchStrategies::ContainerTypeHelper.to_permission(container_type)
+            can_view_container = user.allowed_to?(container_permission, project)
+            
             allowed = case container_type
             when "Article"
               true
             when "Issue"
               can_view_issue = Issue.find_by_id(docattach[:container_id]).visible?
-              allowed = can_view_docs && can_view_issue
+              allowed = can_view_container && can_view_issue
             else
-              container_permission = ("view_" + container_type.pluralize.downcase).to_sym
-              can_view_container = user.allowed_to(container_permission, project)
-              allowed = can_view_docs && can_view_container
+              allowed = can_view_container
             end
 
             if allowed && project_included(docattach.container.project.id, projects_to_search)
@@ -95,8 +91,8 @@ module XapianSearch
       end
     end
 
-    @@numattach=xpattachments.size if offset.nil?
-    xpattachments=xpattachments.sort_by{|x| x[:created_on] }
+    numattach = xpattachments.size
+    xpattachments = xpattachments.sort_by{|x| x[:created_on] }
     
     if RUBY_VERSION >= "1.9"
       xpattachments.each do |attachment|
@@ -104,7 +100,7 @@ module XapianSearch
       end
     end
 
-    [xpattachments, @@numattach]
+    [xpattachments, numattach]
   end
 
   def XapianSearch.project_included(project_id, projects_to_search)

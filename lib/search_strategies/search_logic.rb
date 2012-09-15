@@ -13,8 +13,17 @@ module SearchStrategies::SearchLogic
   def search_in_projects_container(search_data, container_type, search_joins_query)
     find_options = search_options(search_data, container_type, search_joins_query)
 
-    conditions = {:conditions => search_data.project_conditions}
+    user = User.current
+    container_permission = ::SearchStrategies::ContainerTypeHelper.to_permission(container_type)
+    container_condition = Project.allowed_to_condition(user, container_permission)
+    search_conditions = container_condition
+    if search_data.project_conditions
+      search_conditions += " AND " + search_data.project_conditions
+    end
+
+    conditions = {:conditions => search_conditions}
     scope = search_data.scope.scoped(conditions).scoped(find_options)
+
     results_count = scope.count(:all)
     results = scope.find(:all, search_data.limit_options)
 
