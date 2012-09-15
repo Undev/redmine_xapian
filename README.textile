@@ -67,9 +67,6 @@ The database directories have to be named with language name you want to use, en
 
 After file indexing and plugin setup on settings you can search attachment by name and content.
 
-To perform attachment searches view_document permission is needed, be sure it is checked.
-
-
 h1. 3. KNOWN BUGS
 
 - When search is performed across redmine database and xapian database, results count is approximate and may not be accurate due to the required effort in database operations to determine this value.
