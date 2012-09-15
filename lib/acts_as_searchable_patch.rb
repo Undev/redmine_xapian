@@ -25,7 +25,8 @@ module Redmine
               search_for_documents(search_data),
               search_for_issues_attachments(search_data),
               search_for_message_attachments(search_data),
-              search_for_wiki_page_attachments(search_data)
+              search_for_wiki_page_attachments(search_data),
+              search_for_project_files(search_data)
             ]
 
             values = search_results.map(&:first).flatten
@@ -93,6 +94,16 @@ module Redmine
                   ON #{Wiki.table_name}.project_id=#{Project.table_name}.id 
               sql
               search_in_projects_container(search_data, "WikiPage", query)
+            end
+
+            def search_for_project_files(search_data)
+              query = <<-sql
+                INNER JOIN #{Version.table_name} 
+                  ON #{Version.table_name}.id=container_id  
+                INNER JOIN #{Project.table_name}
+                  ON #{Version.table_name}.project_id=#{Project.table_name}.id 
+              sql
+              search_in_projects_container(search_data, "Version", query)
             end
         end
       end
