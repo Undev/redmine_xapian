@@ -26,7 +26,7 @@ else
 
 	description 'With this plugin you will be able to do searches by file name and by strings inside your documents'
 	version '1.4.3'
-	requires_redmine :version_or_higher => '2.0.0'
+	requires_redmine :version_or_higher => '1.4.0'
 
 	settings :partial => 'settings/redmine_xapian_settings',
     		:default => {

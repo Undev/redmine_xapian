@@ -1,5 +1,5 @@
 class AttachmentTest < ActiveSupport::TestCase
-  fixtures :users, :projects, :issues, :issue_statuses, :documents, :attachments, :roles
+  fixtures :all
 
   def setup
     Mailer.stubs(:deliver_mail)
@@ -31,8 +31,8 @@ class AttachmentTest < ActiveSupport::TestCase
 
     @tokens = "some_test_tokens"
 
-    some_priority = IssuePriority.create(:name => "some_priority")
-    some_document_category = DocumentCategory.create(:name => "some_category")
+    some_priority = IssuePriority.create!(:name => "some_priority")
+    some_document_category = DocumentCategory.create!(:name => "some_category")
 
     @projects_to_search.each do |project|
       project.enable_module!(:documents)
@@ -46,7 +46,7 @@ class AttachmentTest < ActiveSupport::TestCase
       project.trackers << Tracker.generate!
 
       # Document
-      project.documents << Document.new(:title => "some_document")
+      project.documents << Document.new(:title => "some_document", :category_id => some_document_category.id)
 
       # Issue
       Issue.generate_for_project!(project, :priority => some_priority)
@@ -57,7 +57,7 @@ class AttachmentTest < ActiveSupport::TestCase
       project.reload
 
       # WikiPage
-      project.create_wiki!(:start_page => "test_page")
+      Wiki.create!(:project_id => project.id, :start_page => "test_page")
       project.wiki.pages << WikiPage.new(:title => "some_wiki_page")
       project.reload
 

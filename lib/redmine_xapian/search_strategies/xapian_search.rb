@@ -62,14 +62,8 @@ module RedmineXapian
           if dochash
             Rails.logger.debug "DEBUG: dochash not nil.. " + dochash.fetch('url').to_s
             Rails.logger.debug "DEBUG: limit_conditions " + limit_options[:limit].inspect
-            if dochash["url"].to_s =~ /^repos\// then
-              if repo_file = process_repo_file(projects_to_search, dochash)
-                xpattachments << repo_file
-              end
-            else
-              if attachment = process_attachment(projects_to_search, dochash)
-                xpattachments << attachment
-              end
+            if attachment = process_attachment(projects_to_search, dochash)
+              xpattachments << attachment
             end
           end
         end
@@ -84,12 +78,11 @@ module RedmineXapian
 
         [xpattachments, xpattachments.size]
       end
+
     private
 
       def process_attachment(projects_to_search, dochash)
-        docattach = Attachment.where( :disk_filename => dochash.fetch('url') ).first
-        Rails.logger.debug "DEBUG: attach event_datetime" + docattach.event_datetime.inspect
-        Rails.logger.debug "DEBUG: attach project" + docattach.project.inspect
+        docattach = Attachment.find(:first, :conditions => ["disk_filename = ?", dochash.fetch('url')])
         if docattach
           Rails.logger.debug "DEBUG: docattach not nil..:  " + docattach.inspect
           if docattach["container_type"] == "Article" && !Redmine::Search.available_search_types.include?("articles")
@@ -108,9 +101,9 @@ module RedmineXapian
               true
             when "Issue"
               can_view_issue = Issue.find_by_id(docattach[:container_id]).visible?
-              allowed = can_view_container && can_view_issue
+              can_view_container && can_view_issue && user.isse
             else
-              allowed = can_view_container
+              can_view_container
             end
 
             if allowed && project_included(docattach.container.project.id, projects_to_search)
@@ -120,39 +113,6 @@ module RedmineXapian
               Rails.logger.debug "DEBUG: user without permissions"
               nil
             end
-          end
-        end
-      end
-
-      def process_repo_file(projects_to_search, dochash)
-        Rails.logger.debug "DEBUG: repo file: " + dochash.fetch('url').inspect
-        dochash2=Hash[ [:project_identifier, :repo_identifier, :file ].zip(dochash.fetch('url').split('/',4).drop(1)) ]
-        project=Project.where(:identifier => dochash2[:project_identifier]).first
-        repository=Repository.where( :project_id=>project.id, :identifier=>dochash2[:repo_identifier] ).first
-        Rails.logger.debug "DEBUG: repository found " + repository.inspect
-        if repository
-          allowed = User.current.allowed_to?(:browse_repository, repository.project)
-          Rails.logger.debug "DEBUG: allowed: " + allowed.inspect + " to project: " + repository.project.inspect
-          if ( allowed and project_included( project.id, projects_to_search ) )
-            docattach=Repofile.new(:filename=>dochash2[:file], :created_on=>"2012-08-23 22:34:50", :project_id=>project.id,
-              :repository_id=>repository.id)
-            #docattach.attributes( :description=>dochash["sample"], :created_on=>"2012-08-23 22:34:50")
-            Rails.logger.debug "DEBUG: push attach" + docattach.inspect
-                  docattach[:description]=dochash["sample"]
-            docattach[:created_on]="2012-08-23 22:34:50"
-            docattach[:project_id]=project.id
-            docattach[:repository_id]=repository.id
-            docattach[:filename]=dochash2[:file]
-
-              #load 'acts_as_event.rb'
-            docattach[:project_id]=project.id
-            Rails.logger.debug "DEBUG: attach event_datetime" + docattach.event_datetime.inspect
-            Rails.logger.debug "DEBUG: ok created"
-            Rails.logger.debug "DEBUG: push attach" + docattach.inspect
-            docattach
-          else
-            Rails.logger.debug "DEBUG: user without permissions"
-            nil
           end
         end
       end

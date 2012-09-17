@@ -13,4 +13,4 @@ if RUBY_VERSION >= "1.9"
 end
 
 # Load the normal Rails helper
-require File.expand_path(File.dirname(__FILE__) + '/../../../test/test_helper')
+require File.expand_path(File.dirname(__FILE__) + '/../../../../test/test_helper')
