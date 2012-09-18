@@ -101,7 +101,7 @@ module RedmineXapian
               true
             when "Issue"
               can_view_issue = Issue.find_by_id(docattach[:container_id]).visible?
-              can_view_container && can_view_issue && user.isse
+              can_view_container && can_view_issue
             else
               can_view_container
             end
