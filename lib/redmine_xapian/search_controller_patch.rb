@@ -98,11 +98,22 @@ module RedmineXapian
               flash[:error] = "#{error}: searching model #{s.inspect}"
             end
           end
-          @rresults = @rresults.sort {|a,b| b.event_datetime <=> a.event_datetime}
-          current_page = params[:page]
-          #per_page = params[:per_page] # could be configurable or fixed in your app
-          per_page = 10
-          @results = @rresults.paginate(:page => current_page, :per_page => per_page)
+          @results = @rresults.sort {|a,b| b.event_datetime <=> a.event_datetime}
+
+          if params[:previous].nil?
+            @pagination_previous_date = @results[0].event_datetime if offset && @results[0]
+            if @results.size > limit
+              @pagination_next_date = @results[limit-1].event_datetime
+              @results = @results[0, limit]
+            end
+          else
+            @pagination_next_date = @results[-1].event_datetime if offset && @results[-1]
+            if @results.size > limit
+              @pagination_previous_date = @results[-(limit)].event_datetime
+              @results = @results[-(limit), limit]
+            end
+          end
+
         else
           @question = ""
           flash.delete(:error)
