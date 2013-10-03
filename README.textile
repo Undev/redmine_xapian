@@ -1,5 +1,8 @@
 h1. Redmine Xapian search plugin
 
+!https://travis-ci.org/Undev/redmine_xapian.png!:https://travis-ci.org/Undev/redmine_xapian
+"!https://codeclimate.com/github/Undev/redmine_xapian.png!":https://codeclimate.com/github/Undev/redmine_xapian
+
 With this plugin you will be able to do searches by file name and by strings inside your documents through the xapian search engine.
 This plugin replaces search controller, its view and search and acts_as_searchable methods.
 
@@ -10,7 +13,7 @@ A copy of the plugin can be downloaded from  Github at https://github.com/xelkan
 
 h2. 1.1. Required packages
 
-Branch redmine-1 (version 1.3.X) only compatible with Redmine 1.4.X 
+Branch redmine-1 (version 1.3.X) only compatible with Redmine 1.4.X
 Branch master (version 1.4.x) only compatible with Redmine 2.0
 
 To use "xapian":http://xapian.org search engine you must install libxapian-ruby and xapian-omega packages (on ubuntu). To index some files with omega you may have to install some other packages like xpdf, antiword, ...
