@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class SearchControllerTest < ActionController::TestCase
   fixtures :attachments,
     :changesets, :documents,
-    :issues, :messages,
+    :issues, :boards, :messages,
     :news, :wiki_pages, :projects
 
   def setup
