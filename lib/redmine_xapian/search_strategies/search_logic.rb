@@ -48,7 +48,7 @@ module RedmineXapian
 
           token_clauses = columns.collect {|column| "(LOWER(#{column}) LIKE ?)"}
           sql = (['(' + token_clauses.join(' OR ') + ')'] * tokens.size).join(options[:all_words] ? ' AND ' : ' OR ')
-          [sql, * (tokens.collect {|w| "%#{w.downcase}%"} * token_clauses.size).sort]
+          [sql, * (tokens.collect {|w| "%#{w.mb_chars.downcase}%"} * token_clauses.size).sort]
         end
     end
   end
